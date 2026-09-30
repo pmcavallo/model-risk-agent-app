@@ -1,0 +1,64 @@
+{
+  "pd": {
+    "psi": {
+      "ok_max": 0.1,
+      "monitor_max": 0.25,
+      "actions": {
+        "ok": "No action",
+        "monitor": "Investigate and document",
+        "breach": "Trigger revalidation"
+      }
+    },
+    "auc": {
+      "floor": 0.7,
+      "material_decline_from_dev": 0.05
+    },
+    "ks": {
+      "floor": 0.3,
+      "material_decline_from_dev": 0.1
+    },
+    "default_rate": {
+      "actual_vs_expected_tolerance_pct": 25
+    }
+  },
+  "lgd": {
+    "psi": {
+      "ok_max": 0.1,
+      "monitor_max": 0.25,
+      "actions": {
+        "ok": "No action",
+        "monitor": "Investigate and document",
+        "breach": "Trigger revalidation"
+      }
+    },
+    "pseudo_r2": {
+      "floor": 0.2,
+      "material_decline_from_dev": 0.05
+    },
+    "rmse": {
+      "ceiling": 0.2,
+      "material_increase_from_dev": 0.03
+    },
+    "calibration_error": {
+      "tolerance": 0.05
+    }
+  },
+  "development_baseline": {
+    "retail_pd_logit": {
+      "auc": 0.78,
+      "ks": 0.42
+    },
+    "smb_pd_logit": {
+      "auc": 0.75,
+      "ks": 0.38
+    },
+    "secured_lgd_frac": {
+      "pseudo_r2": 0.34,
+      "rmse": 0.12
+    },
+    "unsecured_lgd_frac": {
+      "pseudo_r2": 0.3,
+      "rmse": 0.13
+    }
+  }
+}

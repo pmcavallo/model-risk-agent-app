@@ -1,0 +1,30 @@
+# Secrets — the only section that really matters.
+.env
+# Streamlit Community Cloud holds the real key in its Secrets UI, never in the repo.
+# .streamlit/config.toml (the theme) SHOULD ship; only secrets.toml must never ship.
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Agent output written at runtime, not source.
+data/findings.json
+
+# Agent configuration, not documentation. These tell Claude how to work on this
+# repo. They are written for a tool, they go stale the moment the code moves,
+# and nobody cloning this needs them. The README is the documentation.
+.claude/
+CLAUDE.md
+
+# Internal working notes.
+STATUS.md
+
+# Common ones you will want, even though this project has none of them yet.
+# A .gitignore is written for what is coming, not only for what is already here.
+.DS_Store
+venv/
+env/
+.ipynb_checkpoints/
+*.log

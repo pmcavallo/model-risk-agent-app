@@ -1,0 +1,128 @@
+======================================================================
+MODEL RISK ANALYST AGENT  |  model=claude-sonnet-5  |  max steps=15
+Question: Is model D actually fine, or is something building?
+======================================================================
+
+----- STEP 1 -----
+Agent:
+ACTION: list_models()
+
+Observation:
+Models under monitoring:
+  MDL-A | retail_pd_logit | type=PD
+  MDL-B | smb_pd_logit | type=PD
+  MDL-C | secured_lgd_frac | type=LGD
+  MDL-D | unsecured_lgd_frac | type=LGD
+
+----- STEP 2 -----
+Agent:
+ACTION: get_lgd_metrics(model_id="MDL-D")
+
+Observation:
+LGD metrics for MDL-D (unsecured_lgd_frac), 12 months:
+  period    pseudo_r2  rmse   calib_error  psi
+  2025-01  0.300      0.130  0.010        0.090
+  2025-02  0.295      0.135  0.013        0.100
+  2025-03  0.289      0.139  0.017        0.110
+  2025-04  0.284      0.144  0.021        0.120
+  2025-05  0.278      0.148  0.025        0.130
+  2025-06  0.273      0.153  0.029        0.140
+  2025-07  0.267      0.157  0.033        0.150
+  2025-08  0.262      0.162  0.037        0.160
+  2025-09  0.256      0.166  0.040        0.170
+  2025-10  0.251      0.171  0.043        0.180
+  2025-11  0.245      0.175  0.046        0.190
+  2025-12  0.240      0.180  0.048        0.200
+
+----- STEP 3 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="calib_error", value=0.048)
+
+Observation:
+No policy for metric 'calib_error' under lgd. Known: psi, pseudo_r2, rmse, calibration_error.
+
+----- STEP 4 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="calibration_error", value=0.048)
+
+Observation:
+lgd calibration_error=0.048 -> ok (tolerance 0.05)
+
+----- STEP 5 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="psi", value=0.200)
+
+Observation:
+lgd psi=0.200 -> monitor (bands: ok<0.1, monitor 0.1-0.25, breach>0.25)
+
+----- STEP 6 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="pseudo_r2", value=0.240)
+
+Observation:
+lgd pseudo_r2=0.240 -> ok (floor 0.2)
+
+----- STEP 7 -----
+Agent:
+ACTION: trend_facts(model_id="MDL-D", metric="calibration_error")
+
+Observation:
+MDL-D calibration_error: first=0.010, last=0.048, net_change=+0.038, direction=up, strictly_monotonic=True, longest_run_in_direction=11 of 11 steps
+
+----- STEP 8 -----
+Agent:
+ACTION: trend_facts(model_id="MDL-D", metric="psi")
+
+Observation:
+MDL-D psi: first=0.090, last=0.200, net_change=+0.110, direction=up, strictly_monotonic=True, longest_run_in_direction=11 of 11 steps
+
+----- STEP 9 -----
+Agent:
+ACTION: trend_facts(model_id="MDL-D", metric="pseudo_r2")
+
+Observation:
+MDL-D pseudo_r2: first=0.300, last=0.240, net_change=-0.060, direction=down, strictly_monotonic=True, longest_run_in_direction=11 of 11 steps
+
+----- STEP 10 -----
+Agent:
+ACTION: write_finding(model_id="MDL-D", severity="medium", summary="MDL-D (unsecured_lgd_frac) shows a consistent, strictly monotonic 12-month deterioration across all tracked metrics: PSI up from 0.09 to 0.20 (now in 'monitor' band), calibration_error up from 0.010 to 0.048 (still 'ok' but approaching the 0.05 tolerance), and pseudo_R2 down from 0.300 to 0.240 (still above the 0.20 floor but eroding). No single metric has breached policy yet, but the simultaneous, uninterrupted 11/11-step drift in the adverse direction across population stability, calibration, and explanatory power indicates a building risk of model degradation. Recommend closer monitoring and a re-calibration review before PSI or calibration_error cross into breach territory.")
+
+Observation:
+Finding recorded for MDL-D (severity=medium). data/findings.json now holds 1 finding(s).
+
+----- STEP 11 -----
+Agent:
+FINAL: Model D (unsecured_lgd_frac) is not "fine" in a forward-looking sense — something is clearly building, even though no single metric has breached policy today.
+
+Current status (Dec 2025):
+- **PSI = 0.200 → "monitor"** (band: ok<0.10, monitor 0.10–0.25, breach>0.25)
+- **calibration_error = 0.048 → "ok"**, but the tolerance is 0.05 — it's right at the edge
+- **pseudo_R2 = 0.240 → "ok"**, above the 0.20 floor but has fallen from 0.300
+
+What makes this concerning is the trend, not just the snapshot:
+- PSI has risen every single month for 12 months (0.09 → 0.20, strictly monotonic, 11/11 steps)
+- calibration_error has risen every single month (0.010 → 0.048, strictly monotonic, 11/11 steps) — it's about to cross the 0.05 breach threshold at the current pace
+- pseudo_R2 has fallen every single month (0.300 → 0.240, strictly monotonic, 11/11 steps)
+
+All three metrics are degrading simultaneously and without a single reversal for a full year. That's not noise — it's a persistent, uninterrupted drift pattern across population stability, calibration accuracy, and explanatory power at the same time. If the trend continues linearly, calibration_error breaches within roughly the next month or two, and PSI could reach the breach band (>0.25) within a couple more months.
+
+I've logged this as a **medium-severity finding**: no active breach, but a clear, consistent multi-metric deterioration trend that warrants a recalibration review now, before it becomes a breach rather than after.
+
+======================================================================
+FINAL ANSWER:
+Model D (unsecured_lgd_frac) is not "fine" in a forward-looking sense — something is clearly building, even though no single metric has breached policy today.
+
+Current status (Dec 2025):
+- **PSI = 0.200 → "monitor"** (band: ok<0.10, monitor 0.10–0.25, breach>0.25)
+- **calibration_error = 0.048 → "ok"**, but the tolerance is 0.05 — it's right at the edge
+- **pseudo_R2 = 0.240 → "ok"**, above the 0.20 floor but has fallen from 0.300
+
+What makes this concerning is the trend, not just the snapshot:
+- PSI has risen every single month for 12 months (0.09 → 0.20, strictly monotonic, 11/11 steps)
+- calibration_error has risen every single month (0.010 → 0.048, strictly monotonic, 11/11 steps) — it's about to cross the 0.05 breach threshold at the current pace
+- pseudo_R2 has fallen every single month (0.300 → 0.240, strictly monotonic, 11/11 steps)
+
+All three metrics are degrading simultaneously and without a single reversal for a full year. That's not noise — it's a persistent, uninterrupted drift pattern across population stability, calibration accuracy, and explanatory power at the same time. If the trend continues linearly, calibration_error breaches within roughly the next month or two, and PSI could reach the breach band (>0.25) within a couple more months.
+
+I've logged this as a **medium-severity finding**: no active breach, but a clear, consistent multi-metric deterioration trend that warrants a recalibration review now, before it becomes a breach rather than after.
+======================================================================

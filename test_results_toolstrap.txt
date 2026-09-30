@@ -1,0 +1,88 @@
+======================================================================
+MODEL RISK ANALYST AGENT  |  model=claude-sonnet-5  |  max steps=15
+Question: Which of my models needs attention, and what should I do?
+======================================================================
+
+----- STEP 1 -----
+Agent:
+ACTION: list_models()
+
+Observation:
+Models under monitoring:
+  MDL-A | retail_pd_logit | type=PD
+  MDL-B | smb_pd_logit | type=PD
+  MDL-C | secured_lgd_frac | type=LGD
+  MDL-D | unsecured_lgd_frac | type=LGD
+
+----- STEP 2 -----
+Agent:
+ACTION: assess_model(MDL-A)
+
+Observation:
+MDL-A (retail_pd_logit, PD) - OK. All metrics are within policy and stable. Recommendation: No action.
+
+----- STEP 3 -----
+Agent:
+ACTION: assess_model(MDL-B)
+
+Observation:
+MDL-B (smb_pd_logit, PD) - BREACH. Threshold breaches: PSI 0.410 breaches the 0.25 limit; AUC 0.661 is below the 0.70 floor; KS 0.271 is below the 0.30 floor. Recommendation: Trigger revalidation.
+
+----- STEP 4 -----
+Agent:
+ACTION: assess_model(MDL-C)
+
+Observation:
+MDL-C (secured_lgd_frac, LGD) - OK. All metrics are within policy and stable. Recommendation: No action.
+
+----- STEP 5 -----
+Agent:
+ACTION: assess_model(MDL-D)
+
+Observation:
+MDL-D (unsecured_lgd_frac, LGD) - WATCH. No breach, but building risk: PSI 0.200 is in the monitor band; psi has risen every month for 12 months; calibration_error has risen every month for 12 months; rmse has risen every month for 12 months. Recommendation: Investigate and document; monitor closely next quarter.
+
+----- STEP 6 -----
+Agent:
+FINAL:
+
+Here's the status across your 4 models:
+
+1. **MDL-B (smb_pd_logit, PD) — BREACH — needs immediate attention**
+   - Population Stability Index (PSI) = 0.410, well above the 0.25 policy limit (indicates significant population/data drift since development).
+   - AUC = 0.661, below the 0.70 floor (poor discriminatory power).
+   - KS = 0.271, below the 0.30 floor (weak separation between good/bad accounts).
+   - **Action: Trigger a full model revalidation immediately.** This model is no longer performing reliably and should not be relied on for decisioning until revalidated (or a compensating control/manual override process is put in place in the interim).
+
+2. **MDL-D (unsecured_lgd_frac, LGD) — WATCH — monitor closely**
+   - PSI = 0.200, within the monitor band but trending up.
+   - PSI, calibration error, and RMSE have all risen every month for 12 consecutive months — a clear, sustained deterioration trend even though no threshold has been breached yet.
+   - **Action: Investigate the root cause now and document findings.** Given the consistent 12-month trend, this model is likely to breach in the near future. Recommend closer monitoring next quarter and considering an early revalidation before it hits a hard breach.
+
+3. **MDL-A (retail_pd_logit, PD) — OK.** No action needed.
+
+4. **MDL-C (secured_lgd_frac, LGD) — OK.** No action needed.
+
+**Priority:** Address MDL-B first (active breach, revalidate now), then formally investigate and document the drift in MDL-D so it doesn't turn into an unaddressed breach next quarter.
+
+======================================================================
+FINAL ANSWER:
+Here's the status across your 4 models:
+
+1. **MDL-B (smb_pd_logit, PD) — BREACH — needs immediate attention**
+   - Population Stability Index (PSI) = 0.410, well above the 0.25 policy limit (indicates significant population/data drift since development).
+   - AUC = 0.661, below the 0.70 floor (poor discriminatory power).
+   - KS = 0.271, below the 0.30 floor (weak separation between good/bad accounts).
+   - **Action: Trigger a full model revalidation immediately.** This model is no longer performing reliably and should not be relied on for decisioning until revalidated (or a compensating control/manual override process is put in place in the interim).
+
+2. **MDL-D (unsecured_lgd_frac, LGD) — WATCH — monitor closely**
+   - PSI = 0.200, within the monitor band but trending up.
+   - PSI, calibration error, and RMSE have all risen every month for 12 consecutive months — a clear, sustained deterioration trend even though no threshold has been breached yet.
+   - **Action: Investigate the root cause now and document findings.** Given the consistent 12-month trend, this model is likely to breach in the near future. Recommend closer monitoring next quarter and considering an early revalidation before it hits a hard breach.
+
+3. **MDL-A (retail_pd_logit, PD) — OK.** No action needed.
+
+4. **MDL-C (secured_lgd_frac, LGD) — OK.** No action needed.
+
+**Priority:** Address MDL-B first (active breach, revalidate now), then formally investigate and document the drift in MDL-D so it doesn't turn into an unaddressed breach next quarter.
+======================================================================

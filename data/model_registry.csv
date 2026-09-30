@@ -1,0 +1,5 @@
+model_id,model_name,model_type,method,deployed
+MDL-A,retail_pd_logit,PD,simple logistic,2024-12
+MDL-B,smb_pd_logit,PD,simple logistic,2024-12
+MDL-C,secured_lgd_frac,LGD,fractional logistic,2024-12
+MDL-D,unsecured_lgd_frac,LGD,fractional logistic,2024-12

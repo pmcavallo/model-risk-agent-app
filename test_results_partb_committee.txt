@@ -1,0 +1,171 @@
+======================================================================
+MODEL RISK ANALYST AGENT  |  model=claude-sonnet-5  |  max steps=15
+Question: I have a model committee meeting in an hour. What are the three things I most need to know?
+======================================================================
+
+----- STEP 1 -----
+Agent:
+ACTION: list_models()
+
+Observation:
+Models under monitoring:
+  MDL-A | retail_pd_logit | type=PD
+  MDL-B | smb_pd_logit | type=PD
+  MDL-C | secured_lgd_frac | type=LGD
+  MDL-D | unsecured_lgd_frac | type=LGD
+
+----- STEP 2 -----
+Agent:
+ACTION: get_pd_metrics(model_id="MDL-A")
+
+Observation:
+PD metrics for MDL-A (retail_pd_logit), 12 months:
+  period    auc    ks     psi    default_rate(actual/expected)
+  2025-01  0.781  0.416  0.033  3.09 / 3.00
+  2025-02  0.775  0.421  0.033  3.00 / 3.00
+  2025-03  0.784  0.423  0.039  3.11 / 3.00
+  2025-04  0.777  0.421  0.040  3.09 / 3.00
+  2025-05  0.779  0.417  0.053  2.98 / 3.00
+  2025-06  0.779  0.422  0.054  3.04 / 3.00
+  2025-07  0.789  0.418  0.055  2.92 / 3.00
+  2025-08  0.785  0.420  0.058  2.92 / 3.00
+  2025-09  0.783  0.422  0.064  3.02 / 3.00
+  2025-10  0.781  0.423  0.072  3.07 / 3.00
+  2025-11  0.781  0.423  0.070  2.97 / 3.00
+  2025-12  0.777  0.419  0.086  2.91 / 3.00
+
+----- STEP 3 -----
+Agent:
+ACTION: check_policy(model_type="PD", metric="psi", value=0.086)
+
+Observation:
+pd psi=0.086 -> ok (bands: ok<0.1, monitor 0.1-0.25, breach>0.25)
+
+----- STEP 4 -----
+Agent:
+ACTION: trend_facts(model_id="MDL-A", metric="psi")
+
+Observation:
+MDL-A psi: first=0.033, last=0.086, net_change=+0.053, direction=up, strictly_monotonic=False, longest_run_in_direction=8 of 11 steps
+
+----- STEP 5 -----
+Agent:
+ACTION: get_pd_metrics(model_id="MDL-B")
+
+Observation:
+PD metrics for MDL-B (smb_pd_logit), 12 months:
+  period    auc    ks     psi    default_rate(actual/expected)
+  2025-01  0.752  0.374  0.040  3.47 / 3.60
+  2025-02  0.749  0.373  0.060  3.84 / 3.60
+  2025-03  0.746  0.360  0.070  4.00 / 3.60
+  2025-04  0.742  0.350  0.090  4.19 / 3.60
+  2025-05  0.735  0.337  0.120  4.64 / 3.60
+  2025-06  0.727  0.334  0.160  4.82 / 3.60
+  2025-07  0.716  0.324  0.200  5.11 / 3.60
+  2025-08  0.703  0.308  0.270  5.37 / 3.60
+  2025-09  0.692  0.296  0.310  5.73 / 3.60
+  2025-10  0.681  0.291  0.350  6.00 / 3.60
+  2025-11  0.671  0.284  0.380  6.22 / 3.60
+  2025-12  0.661  0.271  0.410  6.33 / 3.60
+
+----- STEP 6 -----
+Agent:
+ACTION: check_policy(model_type="PD", metric="psi", value=0.41)
+
+Observation:
+pd psi=0.410 -> breach (bands: ok<0.1, monitor 0.1-0.25, breach>0.25)
+
+----- STEP 7 -----
+Agent:
+ACTION: check_policy(model_type="PD", metric="auc", value=0.661)
+
+Observation:
+pd auc=0.661 -> breach (floor 0.7)
+
+----- STEP 8 -----
+Agent:
+ACTION: trend_facts(model_id="MDL-B", metric="auc")
+
+Observation:
+MDL-B auc: first=0.752, last=0.661, net_change=-0.091, direction=down, strictly_monotonic=True, longest_run_in_direction=11 of 11 steps
+
+----- STEP 9 -----
+Agent:
+ACTION: check_policy(model_type="PD", metric="ks", value=0.271)
+
+Observation:
+pd ks=0.271 -> breach (floor 0.3)
+
+----- STEP 10 -----
+Agent:
+ACTION: get_lgd_metrics(model_id="MDL-C")
+
+Observation:
+LGD metrics for MDL-C (secured_lgd_frac), 12 months:
+  period    pseudo_r2  rmse   calib_error  psi
+  2025-01  0.335      0.118  0.011        0.026
+  2025-02  0.339      0.121  0.008        0.034
+  2025-03  0.343      0.117  0.011        0.040
+  2025-04  0.340      0.119  0.010        0.044
+  2025-05  0.336      0.120  0.010        0.054
+  2025-06  0.346      0.118  0.009        0.049
+  2025-07  0.343      0.120  0.007        0.053
+  2025-08  0.348      0.126  0.011        0.058
+  2025-09  0.337      0.119  0.009        0.066
+  2025-10  0.339      0.118  0.007        0.069
+  2025-11  0.341      0.122  0.009        0.071
+  2025-12  0.349      0.118  0.012        0.076
+
+----- STEP 11 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="psi", value=0.076)
+
+Observation:
+lgd psi=0.076 -> ok (bands: ok<0.1, monitor 0.1-0.25, breach>0.25)
+
+----- STEP 12 -----
+Agent:
+Model MDL-C looks stable and healthy across all metrics. Now let me check MDL-D.
+
+ACTION: get_lgd_metrics(model_id="MDL-D")
+
+Observation:
+LGD metrics for MDL-D (unsecured_lgd_frac), 12 months:
+  period    pseudo_r2  rmse   calib_error  psi
+  2025-01  0.300      0.130  0.010        0.090
+  2025-02  0.295      0.135  0.013        0.100
+  2025-03  0.289      0.139  0.017        0.110
+  2025-04  0.284      0.144  0.021        0.120
+  2025-05  0.278      0.148  0.025        0.130
+  2025-06  0.273      0.153  0.029        0.140
+  2025-07  0.267      0.157  0.033        0.150
+  2025-08  0.262      0.162  0.037        0.160
+  2025-09  0.256      0.166  0.040        0.170
+  2025-10  0.251      0.171  0.043        0.180
+  2025-11  0.245      0.175  0.046        0.190
+  2025-12  0.240      0.180  0.048        0.200
+
+----- STEP 13 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="calib_error", value=0.048)
+
+Observation:
+No policy for metric 'calib_error' under lgd. Known: psi, pseudo_r2, rmse, calibration_error.
+
+----- STEP 14 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="calibration_error", value=0.048)
+
+Observation:
+lgd calibration_error=0.048 -> ok (tolerance 0.05)
+
+----- STEP 15 -----
+Agent:
+ACTION: check_policy(model_type="LGD", metric="pseudo_r2", value=0.240)
+
+Observation:
+lgd pseudo_r2=0.240 -> ok (floor 0.2)
+
+======================================================================
+Stopped: hit the 15-step limit without a FINAL answer.
+======================================================================
